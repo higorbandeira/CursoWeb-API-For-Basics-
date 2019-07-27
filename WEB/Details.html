@@ -1,0 +1,202 @@
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <link rel="stylesheet" type="text/css" href="./libs/bootstrap-4.3.1/bootstrapcss.min.css">
+        <script type="text/javascript" src="./libs/JQuery/jquery-3.2.1.min.js"></script>
+        <script type="text/javascript" src="./libs/JQuery/popper.min.js"></script>
+        <script type="text/javascript" src="./libs/bootstrap-4.3.1/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="container shadow p-3 mb-5 rounded bg-white" style="min-height: 100%">
+            <div class="row">
+                <div class="col">
+                    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                        <a class="navbar-brand" href="#">SupportAPI</a>
+                        <button class="navbar-toggler" type="button" data-target="#navbarNav" data-toggle="collapse" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <div class="navbar-nav">
+                                <a class="nav-item nav-link" id="Main" href="javascript:void(0)">Main</a>
+                                <a class="nav-item nav-link active" id="Search" href="javascript:void(0)">Consultar Tickets</a>
+                                <a class="nav-item nav-link" id="Create" href="javascript:void(0)">Criar Ticket</a>
+                            </div>
+                        </div>
+                        <div class="navbar-nav ml-auto">
+                            <a class="nav-item nav-link" id="user"></a>
+                            <a class="nav-item nav-link" href="./Login.html">Logout</a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">Main</li> 
+                            <li class="breadcrumb-item">Search</li>
+                            <li class="breadcrumb-item active" aria-current="page">Details</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header" style="background-color: silver">
+                            <div class="row">
+                                <div class="col-6 text-left">
+                                    <small>Autor:</small>
+                                    <small id="criador"></small>
+                                </div>
+                                <div class="col-6 text-right">
+                                    <small id="dataAbertura"></small>
+                                    <small id="dataFechamento"></small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="form-group col-2">
+                                    <label>ID:</label>
+                                    <input type="text" class="form-control" id="ID" disabled>
+                                </div>
+                                <div class="form-group col-10">
+                                    <label>Título</label>
+                                    <input type="text" class="form-control" id="titulo" disabled>
+                                </div>
+                                <div class="form-group col-2">
+                                    <label>Status</label>
+                                    <input type="text" class="form-control" id="status" disabled>
+                                </div>
+                                <div class="form-group col-3">
+                                    <label>Tipo</label>
+                                    <input type="text" class="form-control" id="tipo" disabled>
+                                </div>
+                                <div class="form-group col-3">
+                                    <label>Prioridade</label>
+                                    <input type="text" class="form-control" id="prioridade" disabled>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col form-group">
+                                    <label>Descrição</label>
+                                    <textarea class="form-control" id="descricao" disabled></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col" id="comments">
+                    <div class="card mb-5">
+                        <div class="card-header bg-silver">
+                            <label>Autor:</label>
+                            <label id="autor"></label>
+                        </div>
+                        <div class="card-body">
+                            <label>Comentario:</label>
+                            <textarea class="form-control" id="comentario"></textarea>
+                        </div>
+                        <div class="row text-right">
+                            <div class="col">
+                                <button id="addComment" class="btn btn-primary btn-sm mt-3 mb-3">Incluir Comentário</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        //var user = window.location.search.substr(1).split("?");
+        //var ID = window.location.search.substr(2).split("?");
+        var ID = 5;
+        var userID = 2;
+        var user = "Maria";
+        $("#user").append(user);
+
+        $("#Main").click(function(){
+            window.location.href = "./Main.html?" + user;
+        });
+        $("#Search").click(function(){
+            window.location.href = "./Search.html?" + user;
+        });
+        $("#Create").click(function(){
+            window.location.href = "./Create.html?" + user;
+        });
+
+        $.ajax({
+            method: "GET",
+            url : "http://localhost:54773/api/ticket/getTicket/" + ID,
+            accepts: "application/json",
+        }).done(function(ticket){
+            $("#criador").append(ticket.owner.login);
+            $("#dataAbertura").append(ticket.openingDate);
+            $("#dataFechamento").append(ticket.closingDate);
+            document.getElementById("ID").value = ticket.id;
+            document.getElementById("titulo").value = ticket.code;
+            document.getElementById("status").value = ticket.status;
+            document.getElementById("tipo").value = ticket.status;
+            document.getElementById("prioridade").value = ticket.priority;
+            $("#descricao").append(ticket.description);
+
+            listarComentarios(ticket.comments);
+        }).fail(function(data){
+            alert(data.statusText);
+        });
+
+        var listarComentarios = function(comentarios){
+
+            comentarios.forEach(comentario => {
+                $("#comments").append("<div class='card mb-5'>" +
+                                        "<div class='card-header bg-silver'>" +
+                                            "<label>Autor:</label>" +
+                                            "<label>" + comentario.user.login + "</label>" +
+                                        "</div>" +
+                                        "<div class='card-body'>" +
+                                            "<label>Comentario:</label>" +
+                                            "<textarea class='form-control'>" + comentario.description + "</textarea>" +
+                                        "</div>" +
+                                    "</div>")
+            });
+        };
+
+        $("#addComment").click(function(){
+            var descricao = document.getElementById("comentario").value;
+            $.ajax({
+                method: "GET",
+                url: "http://localhost:54773/api/user/getUser/" + userID,
+                accepts: "application/json",
+            }).done(function(usuario){
+                
+                var comment = { "id" : -1, "ticketId" : ID, "user" : usuario, "description" :  descricao};
+                
+                $.ajax({
+                    method: "POST",
+                    url: "http://localhost:54773/api/comment/add/",
+                    contentType: "application/json",
+                    data: JSON.stringify(comment),
+                }).done(function(){
+                    document.getElementById("comentario").value = "";
+
+                    $("#comments").append("<div class='card mb-5'>" +
+                                        "<div class='card-header bg-silver'>" +
+                                            "<label>Autor:</label>" +
+                                            "<label>" + comment.user.login + "</label>" +
+                                        "</div>" +
+                                        "<div class='card-body'>" +
+                                            "<label>Comentario:</label>" +
+                                            "<textarea class='form-control'>" + comment.description + "</textarea>" +
+                                        "</div>" +
+                                    "</div>")
+                }).fail(function(data){
+                    alert(data.statusText);
+                });
+            }).fail(function(data){
+                alert(data.statusText);
+            });
+        });
+    </script>
+</html>

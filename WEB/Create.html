@@ -1,0 +1,151 @@
+<html>
+    <head>
+            <meta charset="utf-8"/>
+            <link rel="stylesheet" type="text/css" href="./libs/bootstrap-4.3.1/bootstrapcss.min.css">
+            <script type="text/javascript" src="./libs/JQuery/jquery-3.2.1.min.js"></script>
+            <script type="text/javascript" src="./libs/JQuery/popper.min.js"></script>
+            <script type="text/javascript" src="./libs/bootstrap-4.3.1/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="container shadow p-3 mb-5 rounded bg-white" style="min-height: 100%">
+            <div class="row">
+                <div class="col">
+                    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                        <a class="navbar-brand" href="#">SupportAPI</a>
+                        <button class="navbar-toggler" type="button" data-target="#navbarNav" data-toggle="collapse" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <div class="navbar-nav">
+                                <a class="nav-item nav-link" id="Main" href="javascript:void(0)">Main</a>
+                                <a class="nav-item nav-link active" id="Search" href="javascript:void(0)">Consultar Tickets</a>
+                                <a class="nav-item nav-link" id="Create" href="javascript:void(0)">Criar Ticket</a>
+                            </div>
+                        </div>
+                        <div class="navbar-nav ml-auto">
+                            <a class="nav-item nav-link" id="user"></a>
+                            <a class="nav-item nav-link" href="./Login.html">Logout</a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">Main</li> 
+                            <li class="breadcrumb-item">Search</li>
+                            <li class="breadcrumb-item active" aria-current="page">Details</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="row">
+                        <div class="form-group col-12">
+                            <label>Título</label>
+                            <input type="text" class="form-control" id="titulo">
+                        </div>
+                        <div class="form-group col-2">
+                            <label>Status</label>
+                            <select class="form-control" id="status">
+                                <option>New</option>
+                                <option>Open</option>
+                                <option>Pendent</option>
+                                <option>Closed</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-2">
+                            <label>Tipo</label>
+                            <select class="form-control" id="tipo">
+                                <option>Without</option>
+                                <option>Question</option>
+                                <option>Incident</option>
+                                <option>Problem</option>
+                                <option>Task</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-2">
+                            <label>Prioridade</label>
+                            <select class="form-control" id="prioridade">
+                                <option>Without</option>
+                                <option>Low</option>
+                                <option>Normal</option>
+                                <option>High</option>
+                                <option>Urgent</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-12">
+                            <label>Descrição</label>
+                            <textarea class="form-control" id="descricao"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col ml-3">
+                                <button id="addTicket" class="btn btn-primary mt-3">Adicionar Ticket</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        //var user = window.location.search.substr(1).split("?");
+        //var ID = window.location.search.substr(2).split("?");
+        var userID = 2;
+        var user = "Maria";
+        $("#user").append(user);
+
+        $("#Main").click(function(){
+            window.location.href = "./Main.html?" + user;
+        });
+        $("#Search").click(function(){
+            window.location.href = "./Search.html?" + user;
+        });
+        $("#Create").click(function(){
+            window.location.href = "./Create.html?" + user;
+        });
+
+        var ticket = {};
+
+        $("#addTicket").click(function(){
+            var code = document.getElementById("titulo").value;
+            var description = document.getElementById("descricao").value;
+            var type = document.getElementById("tipo").value;
+            var priority = document.getElementById("prioridade").value;
+            var status = document.getElementById("status").value;
+            var openDate = new Date();
+
+            $.ajax({
+                method: "GET",
+                url: "http://localhost:54773/api/user/getUser/" + userID,
+                accepts: "application/json",
+            }).done(function(usuario){
+                
+                ticket = { "id" : -1, "code" : code, "description" : description , "type" : type, "priority" : priority , "status" : status , "OpeningDate" : openDate , "Owner" : usuario };
+                
+                $.ajax({
+                    method: "POST",
+                    url: "http://localhost:54773/api/ticket/add/",
+                    contentType: "application/json",
+                    data: JSON.stringify(ticket),
+                }).done(function(){
+                    document.getElementById("")
+                }).fail(function(data){
+                    document.getElementById("titulo").value = "";
+                    document.getElementById("descricao").value = "";
+                    document.getElementById("tipo").value = "";
+                    document.getElementById("prioridade").value = "";
+                    document.getElementById("status").value = "";
+                });
+            }).fail(function(data){
+                alert(data.statusText);
+            });
+
+
+        });
+
+
+    </script>
+</html>
